@@ -3,6 +3,23 @@ const User = require("../models/User");
 const CryptoJS = require("crypto-js");
 const jwt = require("jsonwebtoken");
 
+
+
+class error {
+  constructor() {
+    this.count = 0;
+    this.lowesCount = 0;
+    this.items = {};
+  }
+
+  enqueue(element) {
+    this.items[this.count] = element;
+    this.count++;
+  }
+  
+  
+}
+
 //REGISTER
 router.post("/register", async (req, res) => {
   const newUser = new User({
@@ -26,23 +43,46 @@ router.post("/register", async (req, res) => {
 
 
 router.post("/adminRegister", async (req, res) => {
-  const newUser = new User({
-    username: req.body.username,
-    firstname: "admin",
+  const { username, email, password } = req.body
+   newUser = new User({
+    username,
+    firstname:"admin",
     lastname: "admin",
-    email: req.body.email,
+    email,
     password: CryptoJS.AES.encrypt(
-      req.body.password,
+      password,
       process.env.PASS_SEC
     ).toString(),
     isAdmin: true
   });
 
+  
+
+
   try {
-    const savedUser = await newUser.save();
-    res.status(201).json(savedUser);
+    const errors = new error();
+
+    if (!username || !email || !password) {
+      JSON.stringify(errors.enqueue("please fill in all fields"));
+    }
+    if (password.length < 6) {
+      JSON.stringify(
+        errors.enqueue(
+          "please ensure password is greater than 6 characters"
+        )
+      );
+    }
+  
+    if (errors.count > 0) {
+      res.status(400).json(errors.items);
+      console.log(errors.items);
+    } else {
+      const savedUser = await newUser.save();
+      res.status(201).json(savedUser);
+    }
   } catch (err) {
     res.status(500).json(err);
+    console.log(err)
   }
 });
 
