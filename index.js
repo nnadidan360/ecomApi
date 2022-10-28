@@ -10,6 +10,7 @@ const cartRoute = require("./routes/cart");
 const orderRoute = require("./routes/order");
 const stripeRoute = require("./routes/stripe");
 const cors = require("cors");
+const morgan = require("morgan")
 
 
 mongoose
@@ -20,6 +21,7 @@ mongoose
   });
 
 app.use(cors());
+app.use(morgan("common"));
 app.use(express.json());
 app.use("/api/auth", authRoute);
 app.use("/api/users", userRoute);
