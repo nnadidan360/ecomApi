@@ -13,12 +13,16 @@ const cors = require("cors");
 const morgan = require("morgan")
 
 
-mongoose
-  .connect(process.env.MONGO_URL)
-  .then(() => console.log("DB Connection Successfull!"))
-  .catch((err) => {
-    console.log(err);
-  });
+const connectDb = async () => {
+  try {
+    const conn = await mongoose.connect(process.env.MONGO_URL)
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
+  
+  } catch (error) {
+    console.log(error);
+    process.exit(1);
+  }
+}
 
 app.use(cors());
 app.use(morgan("common"));
@@ -34,6 +38,8 @@ app.get("/", async(req,res) => {
   res.send("you are allowed to view server just this once")
 })
 
-app.listen(process.env.PORT || 5000, () => {
+connectDb().then(() => {
+  app.listen(process.env.PORT || 5000, () => {
   console.log("Backend server is running!");
-});
+})
+})
