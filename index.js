@@ -38,7 +38,7 @@ app.get("/", async(req,res) => {
   res.send("you are allowed to view server just this once")
 })
 
-connectDB().then(() => {
+connectDb().then(() => {
   app.listen(process.env.PORT || 5000, () => {
   console.log("Backend server is running!");
 })
